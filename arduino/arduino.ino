@@ -2,11 +2,13 @@
 
 #define ENABLE_MOUSE 1
 
+// USBマウス機能を有効にするための条件コンパイル
 #ifdef ENABLE_MOUSE
 #include "USB.h"
 #include "USBHIDMouse.h"
 #endif
 
+// USBマウス機能が有効な場合、Mouseオブジェクトを生成
 #if ENABLE_MOUSE
 USBHIDMouse Mouse;
 #endif
@@ -15,6 +17,7 @@ void setup()
 {
     auto cfg = M5.config();
     M5Dial.begin(cfg, true, false);
+    // USBマウス機能の初期化
 #if ENABLE_MOUSE
     Mouse.begin();
     USB.begin();
@@ -37,6 +40,7 @@ void loop()
     M5Dial.update();
     auto t = M5Dial.Touch.getDetail();
 
+    // タッチ状態の変更を検出
     if (prev_state != t.state)
     {
         prev_state = t.state;
@@ -67,6 +71,7 @@ void loop()
             M5Dial.Display.fillRect(0, 0, 240, 240, BLACK);
         }
     }
+    // タッチが検出され、位置が変わった場合の処理
     if (touched && (prev_x != t.x || prev_y != t.y))
     {
         int8_t dx = (int16_t)t.x - (int16_t)prev_x;
@@ -89,6 +94,7 @@ void loop()
         M5Dial.Display.drawCircle(t.x, t.y, 5, RED);
     }
 
+    // ボタンAが押された場合の処理（右クリックとして扱う）
     if (M5Dial.BtnA.wasPressed())
     {
         Serial.println("RIGHT CLICK");
@@ -97,6 +103,7 @@ void loop()
 #endif
     }
 
+    // エンコーダの位置が変わった場合の処理
     long newPosition = M5Dial.Encoder.read();
     if (newPosition != oldPosition)
     {
